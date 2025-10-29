@@ -4,6 +4,7 @@ composer.lock
 .php-cs-fixer.cache
 .phpstan.cache
 coverage/
+coverage.xml
 .DS_Store
 .idea/
 *.swp

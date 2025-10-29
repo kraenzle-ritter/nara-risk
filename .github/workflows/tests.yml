@@ -32,7 +32,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
-          coverage: none
+          coverage: ${{ matrix.php == '8.3' && 'xdebug' || 'none' }}
 
       - name: Setup problem matchers
         run: |
@@ -48,4 +48,16 @@ jobs:
         run: composer show -D
 
       - name: Execute tests
-        run: vendor/bin/phpunit
+        run: |
+          if [[ "${{ matrix.php }}" == "8.3" ]]; then
+            vendor/bin/phpunit --coverage-clover coverage.xml
+          else
+            vendor/bin/phpunit
+          fi
+
+      - name: Upload coverage reports to Codecov
+        if: matrix.php == '8.3'
+        uses: codecov/codecov-action@v3
+        with:
+          file: coverage.xml
+          fail_ci_if_error: true
