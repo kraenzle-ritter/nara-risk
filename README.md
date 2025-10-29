@@ -4,10 +4,10 @@
 [![Code Style](https://github.com/kraenzle-ritter/nara-risk/workflows/Code%20Style/badge.svg)](https://github.com/kraenzle-ritter/nara-risk/actions)
 [![codecov](https://codecov.io/gh/kraenzle-ritter/nara-risk/branch/main/graph/badge.svg)](https://codecov.io/gh/kraenzle-ritter/nara-risk)
 [![PHPStan Level 5](https://img.shields.io/badge/PHPStan-Level%205-brightgreen.svg)](https://phpstan.org/)
-[![Latest Stable Version](https://poser.pugx.org/kraenzle-ritter/nara-risk-assessment/v/stable)](https://packagist.org/packages/kraenzle-ritter/nara-risk-assessment)
-[![Total Downloads](https://poser.pugx.org/kraenzle-ritter/nara-risk-assessment/downloads)](https://packagist.org/packages/kraenzle-ritter/nara-risk-assessment)
-[![License](https://poser.pugx.org/kraenzle-ritter/nara-risk-assessment/license)](https://packagist.org/packages/kraenzle-ritter/nara-risk-assessment)
-[![PHP Version Require](https://poser.pugx.org/kraenzle-ritter/nara-risk-assessment/require/php)](https://packagist.org/packages/kraenzle-ritter/nara-risk-assessment)
+[![Latest Stable Version](https://poser.pugx.org/kraenzle-ritter/nara-risk/v/stable)](https://packagist.org/packages/kraenzle-ritter/nara-risk)
+[![Total Downloads](https://poser.pugx.org/kraenzle-ritter/nara-risk/downloads)](https://packagist.org/packages/kraenzle-ritter/nara-risk)
+[![License](https://poser.pugx.org/kraenzle-ritter/nara-risk/license)](https://packagist.org/packages/kraenzle-ritter/nara-risk)
+[![PHP Version Require](https://poser.pugx.org/kraenzle-ritter/nara-risk/require/php)](https://packagist.org/packages/kraenzle-ritter/nara-risk)
 
 A Laravel package for automated digital preservation risk assessment based on the NARA Digital Preservation Framework.
 
@@ -15,15 +15,15 @@ A Laravel package for automated digital preservation risk assessment based on th
 
 - Official NARA TTL/RDF data integration
 - Automatic caching with 28-day refresh cycle
-- Risk assessment for 100+ file formats via PRONOM IDs
-- Preservation action recommendations
+- Nara Risk assessment for 100+ file formats via PRONOM IDs
+- Nara Preservation action recommendations
 - Support for 16 NARA format categories
-- Tool suggestions for preservation workflows
+- Nara Tool suggestions for preservation workflows
 
 ## Installation
 
 ```bash
-composer require kraenzle-ritter/nara-risk-assessment
+composer require kraenzle-ritter/nara-risk
 ```
 
 The package auto-registers via Laravel's package discovery.
@@ -80,7 +80,7 @@ The package includes 44 comprehensive tests covering all functionality.
 ## Requirements
 
 - PHP 8.2+
-- Laravel 11.0+
+- Laravel 11.0+ | 12.0+
 
 ## Data Sources
 

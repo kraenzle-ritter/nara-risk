@@ -1,5 +1,5 @@
 {
-    "name": "kraenzle-ritter/nara-risk-assessment",
+    "name": "kraenzle-ritter/nara-risk",
     "description": "Laravel package for automated digital preservation risk assessment based on NARA Digital Preservation Framework TTL/RDF data",
     "keywords": [
         "laravel",
@@ -22,12 +22,12 @@
     ],
     "require": {
         "php": "^8.2",
-        "illuminate/support": "^11.0",
+        "illuminate/support": "^11.0|^12.0",
         "pietercolpaert/hardf": "^0.5"
     },
     "require-dev": {
         "laravel/boost": "^1.6",
-        "orchestra/testbench": "^9.0",
+        "orchestra/testbench": "^9.0|^10.0",
         "phpunit/phpunit": "^10.0|^11.0",
         "friendsofphp/php-cs-fixer": "^3.64",
         "phpstan/phpstan": "^1.12",
