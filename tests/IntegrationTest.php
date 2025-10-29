@@ -1,10 +1,10 @@
 <?php
 
-namespace KraenzleRitter\NaraRiskAssessment\Tests;
+namespace KraenzleRitter\NaraRisk\Tests;
 
-use KraenzleRitter\NaraRiskAssessment\Services\NaraAssessmentService;
-use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService;
-use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlParserService;
+use KraenzleRitter\NaraRisk\Services\NaraAssessmentService;
+use KraenzleRitter\NaraRisk\Services\NaraTtlDownloadService;
+use KraenzleRitter\NaraRisk\Services\NaraTtlParserService;
 
 /**
  * Integration tests using real NARA data

@@ -1,8 +1,8 @@
 <?php
 
-namespace KraenzleRitter\NaraRiskAssessment\Tests;
+namespace KraenzleRitter\NaraRisk\Tests;
 
-use KraenzleRitter\NaraRiskAssessment\NaraServiceProvider;
+use KraenzleRitter\NaraRisk\NaraServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra

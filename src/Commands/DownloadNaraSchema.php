@@ -1,9 +1,9 @@
 <?php
 
-namespace KraenzleRitter\NaraRiskAssessment\Commands;
+namespace KraenzleRitter\NaraRisk\Commands;
 
 use Illuminate\Console\Command;
-use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService;
+use KraenzleRitter\NaraRisk\Services\NaraTtlDownloadService;
 
 class DownloadNaraSchema extends Command
 {

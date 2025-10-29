@@ -1,6 +1,6 @@
 <?php
 
-namespace KraenzleRitter\NaraRiskAssessment\Enums;
+namespace KraenzleRitter\NaraRisk\Enums;
 
 enum PreservationAction: string
 {

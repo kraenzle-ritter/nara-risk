@@ -1,6 +1,6 @@
 <?php
 
-namespace KraenzleRitter\NaraRiskAssessment\Facades;
+namespace KraenzleRitter\NaraRisk\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array getCacheInfo()
  * @method static array getParsingStatistics()
  *
- * @see \KraenzleRitter\NaraRiskAssessment\Services\NaraAssessmentService
+ * @see \KraenzleRitter\NaraRisk\Services\NaraAssessmentService
  */
 class Nara extends Facade
 {

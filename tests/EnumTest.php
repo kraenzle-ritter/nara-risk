@@ -1,10 +1,10 @@
 <?php
 
-namespace KraenzleRitter\NaraRiskAssessment\Tests;
+namespace KraenzleRitter\NaraRisk\Tests;
 
-use KraenzleRitter\NaraRiskAssessment\Enums\Category;
-use KraenzleRitter\NaraRiskAssessment\Enums\PreservationAction;
-use KraenzleRitter\NaraRiskAssessment\Enums\RiskLevel;
+use KraenzleRitter\NaraRisk\Enums\Category;
+use KraenzleRitter\NaraRisk\Enums\PreservationAction;
+use KraenzleRitter\NaraRisk\Enums\RiskLevel;
 use PHPUnit\Framework\TestCase;
 
 class EnumTest extends TestCase

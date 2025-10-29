@@ -1,9 +1,9 @@
 <?php
 
-namespace KraenzleRitter\NaraRiskAssessment;
+namespace KraenzleRitter\NaraRisk;
 
 use Illuminate\Support\ServiceProvider;
-use KraenzleRitter\NaraRiskAssessment\Services\NaraAssessmentService;
+use KraenzleRitter\NaraRisk\Services\NaraAssessmentService;
 
 class NaraServiceProvider extends ServiceProvider
 {
@@ -37,7 +37,7 @@ class NaraServiceProvider extends ServiceProvider
 
             // Register commands
             $this->commands([
-                \KraenzleRitter\NaraRiskAssessment\Commands\DownloadNaraSchema::class,
+                \KraenzleRitter\NaraRisk\Commands\DownloadNaraSchema::class,
             ]);
         }
     }

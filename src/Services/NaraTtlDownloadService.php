@@ -1,6 +1,6 @@
 <?php
 
-namespace KraenzleRitter\NaraRiskAssessment\Services;
+namespace KraenzleRitter\NaraRisk\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;

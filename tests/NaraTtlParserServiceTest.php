@@ -1,9 +1,9 @@
 <?php
 
-namespace KraenzleRitter\NaraRiskAssessment\Tests;
+namespace KraenzleRitter\NaraRisk\Tests;
 
-use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService;
-use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlParserService;
+use KraenzleRitter\NaraRisk\Services\NaraTtlDownloadService;
+use KraenzleRitter\NaraRisk\Services\NaraTtlParserService;
 
 class NaraTtlParserServiceTest extends TestCase
 {

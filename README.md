@@ -31,7 +31,7 @@ The package auto-registers via Laravel's package discovery.
 ## Usage
 
 ```php
-use KraenzleRitter\NaraRiskAssessment\Services\NaraAssessmentService;
+use KraenzleRitter\NaraRisk\Services\NaraAssessmentService;
 
 $service = app(NaraAssessmentService::class);
 $result = $service->assessFile('fmt/412'); // PDF 1.7
