@@ -3,6 +3,8 @@
 namespace KraenzleRitter\NaraRiskAssessment\Tests;
 
 use KraenzleRitter\NaraRiskAssessment\Services\NaraAssessmentService;
+use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService;
+use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlParserService;
 
 /**
  * Integration tests using real NARA data
@@ -14,7 +16,11 @@ class IntegrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = $this->app->make(NaraAssessmentService::class);
+        
+        // Create services manually for testing to avoid DI issues in CI
+        $downloadService = new NaraTtlDownloadService();
+        $parserService = new NaraTtlParserService();
+        $this->service = new NaraAssessmentService($downloadService, $parserService);
     }
 
     public function test_format_assessment_with_real_data()

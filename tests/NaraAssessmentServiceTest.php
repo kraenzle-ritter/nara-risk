@@ -3,6 +3,8 @@
 namespace KraenzleRitter\NaraRiskAssessment\Tests;
 
 use KraenzleRitter\NaraRiskAssessment\Services\NaraAssessmentService;
+use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService;
+use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlParserService;
 
 class NaraAssessmentServiceTest extends TestCase
 {
@@ -11,7 +13,11 @@ class NaraAssessmentServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = $this->app->make(NaraAssessmentService::class);
+        
+        // Create services manually for testing to avoid DI issues in CI
+        $downloadService = new NaraTtlDownloadService();
+        $parserService = new NaraTtlParserService();
+        $this->service = new NaraAssessmentService($downloadService, $parserService);
     }
 
     public function test_assess_file_returns_complete_result()
