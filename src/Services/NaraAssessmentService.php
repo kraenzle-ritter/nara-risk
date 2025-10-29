@@ -3,9 +3,6 @@
 namespace KraenzleRitter\NaraRiskAssessment\Services;
 
 use Illuminate\Support\Facades\Log;
-use KraenzleRitter\NaraRiskAssessment\Enums\Category;
-use KraenzleRitter\NaraRiskAssessment\Enums\PreservationAction;
-use KraenzleRitter\NaraRiskAssessment\Enums\RiskLevel;
 
 /**
  * NARA Digital Preservation Framework Assessment Service
