@@ -32,7 +32,7 @@ class NaraTtlParserService
             Log::debug('Hardf parsing result', [
                 'triples_count' => count($triples),
                 'first_triple_type' => gettype($triples[0] ?? null),
-                'first_triple_structure' => is_array($triples[0] ?? null) ? array_keys($triples[0]) : 'not array'
+                'first_triple_structure' => is_array($triples[0] ?? null) ? array_keys($triples[0]) : 'not array',
             ]);
 
             // Group triples by subject
@@ -51,13 +51,13 @@ class NaraTtlParserService
                 }
 
                 if ($subject && $predicate && $object !== null) {
-                    if (!isset($resources[$subject])) {
+                    if (! isset($resources[$subject])) {
                         $resources[$subject] = [];
                     }
                     $resources[$subject][] = [
                         'subject' => $subject,
                         'predicate' => $predicate,
-                        'object' => $object
+                        'object' => $object,
                     ];
                 }
             }
@@ -72,12 +72,13 @@ class NaraTtlParserService
 
         } catch (\Exception $e) {
             Log::error('TTL parsing failed', ['error' => $e->getMessage()]);
+
             return [];
         }
 
         Log::info('NARA TTL parsing completed', [
             'pronom_mappings' => count($this->pronomMappings),
-            'nara_formats' => count($this->naraFormats)
+            'nara_formats' => count($this->naraFormats),
         ]);
 
         return $this->pronomMappings;
@@ -97,7 +98,7 @@ class NaraTtlParserService
 
             // Handle multiple values for same property
             if (isset($properties[$predicate])) {
-                if (!is_array($properties[$predicate])) {
+                if (! is_array($properties[$predicate])) {
                     $properties[$predicate] = [$properties[$predicate]];
                 }
                 $properties[$predicate][] = $object;
@@ -112,10 +113,10 @@ class NaraTtlParserService
         Log::debug('Parsed resource with hardf', [
             'subject' => $subject,
             'properties_count' => count($properties),
-            'has_pronom' => !empty($pronomId),
+            'has_pronom' => ! empty($pronomId),
             'pronom_id' => $pronomId,
             'has_wikidata_p2748' => isset($properties['http://www.wikidata.org/entity/p2748']),
-            'property_keys' => array_slice(array_keys($properties), 0, 10) // First 10 property keys
+            'property_keys' => array_slice(array_keys($properties), 0, 10), // First 10 property keys
         ]);
 
         if ($pronomId) {
@@ -184,7 +185,7 @@ class NaraTtlParserService
             'nara_category' => $category,
             'nara_risk_level' => $riskLevel,
             'nara_preservation_action' => $preservationAction,
-            'properties' => $properties
+            'properties' => $properties,
         ];
 
         // Store by PRONOM ID
@@ -196,7 +197,7 @@ class NaraTtlParserService
             'format' => $formatName,
             'category' => $category,
             'risk' => $riskLevel,
-            'action' => $preservationAction
+            'action' => $preservationAction,
         ]);
     }
 
@@ -209,14 +210,14 @@ class NaraTtlParserService
         $fullUri = str_replace('nara:', 'https://www.archives.gov/data/lod/dpframework/def/', $propertyName);
         $value = $properties[$fullUri] ?? $properties[$propertyName] ?? null;
 
-        if (!$value) {
+        if (! $value) {
             return null;
         }
 
         // Handle arrays - take first value for now
         if (is_array($value)) {
             $value = $value[0] ?? null;
-            if (!$value) {
+            if (! $value) {
                 return null;
             }
         }
@@ -232,7 +233,7 @@ class NaraTtlParserService
             return [
                 'nara_id' => $naraId,
                 'label' => $label,
-                'value' => str_replace(['naraid:', 'https://www.archives.gov/data/lod/dpframework/id/'], '', $naraId)
+                'value' => str_replace(['naraid:', 'https://www.archives.gov/data/lod/dpframework/id/'], '', $naraId),
             ];
         }
 
@@ -240,7 +241,7 @@ class NaraTtlParserService
         return [
             'nara_id' => null,
             'label' => trim($value, '"'),
-            'value' => trim($value, '"')
+            'value' => trim($value, '"'),
         ];
     }
 
@@ -251,7 +252,7 @@ class NaraTtlParserService
     {
         // Strip URL prefix if present to get just the ID
         $cleanId = str_replace(['https://www.archives.gov/data/lod/dpframework/id/', 'naraid:'], 'naraid:', $naraId);
-        
+
         // Map common NARA IDs to labels
         $naraLabels = [
             'naraid:Low' => 'Low Risk',
@@ -271,7 +272,7 @@ class NaraTtlParserService
             'naraid:Email' => 'Email',
             'naraid:Web' => 'Web Records',
             'naraid:StructuredData' => 'Structured Data',
-            'naraid:Geospatial' => 'Geospatial'
+            'naraid:Geospatial' => 'Geospatial',
         ];
 
         return $naraLabels[$cleanId] ?? str_replace('naraid:', '', $cleanId);
@@ -323,7 +324,7 @@ class NaraTtlParserService
             'total_mappings' => count($this->pronomMappings),
             'categories' => $categoryStats,
             'risk_levels' => $riskStats,
-            'actions' => $actionStats
+            'actions' => $actionStats,
         ];
     }
 }

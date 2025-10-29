@@ -1,6 +1,6 @@
 {
     "name": "kraenzle-ritter/nara-risk-assessment",
-    "description": "NARA Digital Preservation Framework Risk Assessment for Laravel - Automated preservation risk analysis based on NARA TTL/RDF data",
+    "description": "Laravel package for automated digital preservation risk assessment based on NARA Digital Preservation Framework TTL/RDF data",
     "keywords": [
         "laravel",
         "preservation",
@@ -28,7 +28,10 @@
     "require-dev": {
         "laravel/boost": "^1.6",
         "orchestra/testbench": "^9.0",
-        "phpunit/phpunit": "^10.0|^11.0"
+        "phpunit/phpunit": "^10.0|^11.0",
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "phpstan/phpstan": "^1.12",
+        "larastan/larastan": "^2.9"
     },
     "autoload": {
         "psr-4": {
@@ -46,6 +49,9 @@
     "scripts": {
         "test": "vendor/bin/phpunit",
         "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "analyse": "vendor/bin/phpstan analyse",
+        "format": "vendor/bin/php-cs-fixer fix",
+        "format-check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
         "boost:install": "vendor/bin/testbench workbench:install",
         "post-autoload-dump": [
             "@clear",

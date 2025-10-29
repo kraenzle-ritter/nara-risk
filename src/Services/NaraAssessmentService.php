@@ -2,12 +2,10 @@
 
 namespace KraenzleRitter\NaraRiskAssessment\Services;
 
-use KraenzleRitter\NaraRiskAssessment\Enums\Category;
-use KraenzleRitter\NaraRiskAssessment\Enums\RiskLevel;
-use KraenzleRitter\NaraRiskAssessment\Enums\PreservationAction;
-use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService;
-use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlParserService;
 use Illuminate\Support\Facades\Log;
+use KraenzleRitter\NaraRiskAssessment\Enums\Category;
+use KraenzleRitter\NaraRiskAssessment\Enums\PreservationAction;
+use KraenzleRitter\NaraRiskAssessment\Enums\RiskLevel;
 
 /**
  * NARA Digital Preservation Framework Assessment Service
@@ -15,15 +13,17 @@ use Illuminate\Support\Facades\Log;
  */
 class NaraAssessmentService
 {
-    private NaraTtlDownloadService $downloadService;
-    private NaraTtlParserService $parserService;
+    private const LARGE_FILE_THRESHOLD = 100 * 1024 * 1024; // 100MB
+    private const DEFAULT_RISK_LEVEL = 'Moderate';
+    private const DEFAULT_ACTION = 'Identify';
+
     private array $ttlMappings = [];
     private bool $initialized = false;
 
-    public function __construct()
-    {
-        $this->downloadService = new NaraTtlDownloadService();
-        $this->parserService = new NaraTtlParserService();
+    public function __construct(
+        private readonly NaraTtlDownloadService $downloadService,
+        private readonly NaraTtlParserService $parserService
+    ) {
     }
 
     /**
@@ -43,14 +43,14 @@ class NaraAssessmentService
             $this->ttlMappings = $this->parserService->parseTtl($ttlContent);
 
             Log::info('NARA Assessment Service initialized', [
-                'ttl_mappings' => count($this->ttlMappings)
+                'ttl_mappings' => count($this->ttlMappings),
             ]);
 
             $this->initialized = true;
 
         } catch (\Exception $e) {
             Log::error('Failed to load NARA TTL data - service unavailable', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             throw new \Exception('NARA TTL data unavailable: ' . $e->getMessage());
@@ -72,25 +72,7 @@ class NaraAssessmentService
         }
 
         // Unknown format - not in NARA registry
-        return [
-            'pronom_id' => $pronomId,
-            'format_name' => 'Unknown Format',
-            'category' => null,
-            'category_label' => 'Unknown',
-            'nara_category_id' => null,
-            'nara_format_id' => null,
-            'risk_level' => 'Moderate',
-            'risk_label' => 'Moderate Risk',
-            'nara_risk_id' => null,
-            'recommended_action' => 'Identify',
-            'action_label' => 'Identify Version',
-            'nara_action_id' => null,
-            'tools' => ['siegfried', 'file', 'trid', 'droid'],
-            'nara_compliant' => false,
-            'ttl_source' => false,
-            'assessment_notes' => 'Format not recognized in NARA framework - requires identification and assessment',
-            'nara_subject' => null
-        ];
+        return $this->buildUnknownFormatResult($pronomId);
     }
 
     /**
@@ -139,7 +121,7 @@ class NaraAssessmentService
             'nara_compliant' => true,
             'ttl_source' => true,
             'assessment_notes' => $this->generateTtlAssessmentNotes($ttlMapping, $fileData),
-            'nara_subject' => $ttlMapping['subject']
+            'nara_subject' => $ttlMapping['subject'],
         ];
     }
 
@@ -180,55 +162,8 @@ class NaraAssessmentService
         }
 
         // File size considerations
-        if (isset($fileData['filesize']) && $fileData['filesize'] > 100 * 1024 * 1024) {
+        if (isset($fileData['filesize']) && $fileData['filesize'] > self::LARGE_FILE_THRESHOLD) {
             $notes[] = "Large file size noted for preservation planning.";
-        }
-
-        return implode(' ', $notes);
-    }
-
-    /**
-     * Generate assessment notes for static mappings
-     */
-    private function generateStaticAssessmentNotes(Category $category, RiskLevel $risk, PreservationAction $action, array $fileData): string
-    {
-        $notes = [];
-
-        // Category-specific notes
-        $notes[] = "Format belongs to {$category->getLabel()} category.";
-
-        // Risk-specific notes
-        switch ($risk) {
-            case RiskLevel::LOW:
-                $notes[] = "Format is well-supported and suitable for long-term preservation.";
-                break;
-            case RiskLevel::MODERATE:
-                $notes[] = "Format requires periodic assessment to ensure continued accessibility.";
-                break;
-            case RiskLevel::HIGH:
-                $notes[] = "Format poses significant preservation risks and should be transformed.";
-                break;
-        }
-
-        // Action-specific notes
-        switch ($action) {
-            case PreservationAction::RETAIN:
-                $notes[] = "No immediate action required - monitor format status.";
-                break;
-            case PreservationAction::ASSESS:
-                $notes[] = "Schedule for detailed preservation assessment within 12-24 months.";
-                break;
-            case PreservationAction::TRANSFORM:
-                $notes[] = "Migrate to preservation-friendly format as soon as feasible.";
-                break;
-            case PreservationAction::IDENTIFY:
-                $notes[] = "Identify specific format version and reassess preservation requirements.";
-                break;
-        }
-
-        // File size considerations
-        if (isset($fileData['filesize']) && $fileData['filesize'] > 100 * 1024 * 1024) { // > 100MB
-            $notes[] = "Large file size may require special handling for migration activities.";
         }
 
         return implode(' ', $notes);
@@ -255,7 +190,7 @@ class NaraAssessmentService
             'total_formats' => count($this->ttlMappings),
             'by_category' => [],
             'by_risk' => [],
-            'by_action' => []
+            'by_action' => [],
         ];
 
         foreach ($this->ttlMappings as $mapping) {
@@ -285,6 +220,33 @@ class NaraAssessmentService
     public function getParsingStatistics(): array
     {
         $this->initialize();
+
         return $this->parserService->getStatistics();
+    }
+
+    /**
+     * Build result array for unknown formats
+     */
+    private function buildUnknownFormatResult(string $pronomId): array
+    {
+        return [
+            'pronom_id' => $pronomId,
+            'format_name' => 'Unknown Format',
+            'category' => null,
+            'category_label' => 'Unknown',
+            'nara_category_id' => null,
+            'nara_format_id' => null,
+            'risk_level' => self::DEFAULT_RISK_LEVEL,
+            'risk_label' => 'Moderate Risk',
+            'nara_risk_id' => null,
+            'recommended_action' => self::DEFAULT_ACTION,
+            'action_label' => 'Identify Version',
+            'nara_action_id' => null,
+            'tools' => $this->getToolsForAction(self::DEFAULT_ACTION),
+            'nara_compliant' => false,
+            'ttl_source' => false,
+            'assessment_notes' => 'Format not recognized in NARA framework - requires identification and assessment',
+            'nara_subject' => null,
+        ];
     }
 }

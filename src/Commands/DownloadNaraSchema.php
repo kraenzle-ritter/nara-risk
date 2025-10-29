@@ -2,8 +2,8 @@
 
 namespace KraenzleRitter\NaraRiskAssessment\Commands;
 
-use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService;
 use Illuminate\Console\Command;
+use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService;
 
 class DownloadNaraSchema extends Command
 {
@@ -40,15 +40,17 @@ class DownloadNaraSchema extends Command
             }
         }
 
-        $successCount = count(array_filter($results, fn($r) => $r['success']));
+        $successCount = count(array_filter($results, fn ($r) => $r['success']));
         $totalCount = count($results);
 
         $this->newLine();
         if ($successCount === $totalCount) {
             $this->info("All {$totalCount} schema files downloaded successfully!");
+
             return Command::SUCCESS;
         } else {
             $this->warn("{$successCount}/{$totalCount} schema files downloaded successfully.");
+
             return Command::FAILURE;
         }
     }

@@ -3,7 +3,6 @@
 namespace KraenzleRitter\NaraRiskAssessment\Tests;
 
 use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService;
-use Illuminate\Support\Facades\Storage;
 
 class NaraTtlDownloadServiceTest extends TestCase
 {
@@ -33,7 +32,7 @@ class NaraTtlDownloadServiceTest extends TestCase
     {
         // This will either use cache or download
         $content = $this->service->getTtlContent();
-        
+
         $this->assertIsString($content);
         $this->assertNotEmpty($content);
         $this->assertStringContainsString('@prefix', $content);
@@ -43,7 +42,7 @@ class NaraTtlDownloadServiceTest extends TestCase
     public function test_ttl_content_is_valid_rdf_format()
     {
         $content = $this->service->getTtlContent();
-        
+
         // Check for RDF/TTL format markers
         $this->assertStringContainsString('@prefix', $content);
         $this->assertStringContainsString('rdf:', $content);
@@ -54,7 +53,7 @@ class NaraTtlDownloadServiceTest extends TestCase
     {
         $this->service->getTtlContent();
         $cacheFile = $this->cachePath . '/nara_fileformats.ttl';
-        
+
         $this->assertFileExists($cacheFile);
     }
 
@@ -62,12 +61,12 @@ class NaraTtlDownloadServiceTest extends TestCase
     {
         $this->service->getTtlContent();
         $cacheFile = $this->cachePath . '/nara_fileformats.ttl';
-        
+
         $size = filesize($cacheFile);
-        
+
         // NARA TTL file should be at least 100KB
         $this->assertGreaterThan(100000, $size, 'TTL file should be at least 100KB');
-        
+
         // But less than 10MB (sanity check)
         $this->assertLessThan(10000000, $size, 'TTL file should be less than 10MB');
     }
@@ -75,7 +74,7 @@ class NaraTtlDownloadServiceTest extends TestCase
     public function test_get_cache_info_returns_array()
     {
         $info = $this->service->getCacheInfo();
-        
+
         $this->assertIsArray($info);
         $this->assertArrayHasKey('exists', $info);
         $this->assertArrayHasKey('path', $info);
@@ -85,9 +84,9 @@ class NaraTtlDownloadServiceTest extends TestCase
     {
         // Ensure file is cached
         $this->service->getTtlContent();
-        
+
         $info = $this->service->getCacheInfo();
-        
+
         $this->assertTrue($info['exists']);
         $this->assertArrayHasKey('modified', $info);
         $this->assertArrayHasKey('age_days', $info);
@@ -101,15 +100,15 @@ class NaraTtlDownloadServiceTest extends TestCase
         $this->service->getTtlContent();
         $cacheFile = $this->cachePath . '/nara_fileformats.ttl';
         $firstModTime = filemtime($cacheFile);
-        
+
         // Wait a moment
         sleep(1);
-        
+
         // Force refresh
         $content = $this->service->refreshCache();
-        
+
         $secondModTime = filemtime($cacheFile);
-        
+
         // File should have been re-downloaded (newer modification time)
         $this->assertGreaterThan($firstModTime, $secondModTime);
         $this->assertIsString($content);
@@ -119,7 +118,7 @@ class NaraTtlDownloadServiceTest extends TestCase
     public function test_refresh_cache_returns_valid_ttl_content()
     {
         $content = $this->service->refreshCache();
-        
+
         $this->assertIsString($content);
         $this->assertNotEmpty($content);
         $this->assertStringContainsString('@prefix', $content);
@@ -128,7 +127,7 @@ class NaraTtlDownloadServiceTest extends TestCase
     public function test_download_all_schema_files_returns_results_array()
     {
         $results = $this->service->downloadAllSchemaFiles();
-        
+
         $this->assertIsArray($results);
         $this->assertArrayHasKey('fileformats', $results);
         $this->assertArrayHasKey('category', $results);

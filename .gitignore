@@ -1,6 +1,9 @@
 /vendor/
 composer.lock
 .phpunit.result.cache
+.php-cs-fixer.cache
+.phpstan.cache
+coverage/
 .DS_Store
 .idea/
 *.swp

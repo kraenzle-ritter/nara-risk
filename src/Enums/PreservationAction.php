@@ -39,7 +39,7 @@ enum PreservationAction: string
                 'format_conversion' => ['pandoc', 'ffmpeg', 'imagemagick', 'libreoffice'],
                 'text_extraction' => ['tesseract', 'pdftotext', 'antiword'],
                 'validation' => ['jhove', 'veraPDF', 'droid'],
-                'migration' => ['fits', 'tika', 'siegfried']
+                'migration' => ['fits', 'tika', 'siegfried'],
             ],
             self::ASSESS => ['jhove', 'fits', 'droid', 'veraPDF'],
             self::IDENTIFY => ['siegfried', 'file', 'trid', 'droid'],

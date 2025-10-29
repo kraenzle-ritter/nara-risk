@@ -28,8 +28,8 @@ class NaraTtlDownloadService
     {
         // Store in storage/app/nara/ directory
         $this->cachePath = storage_path('app/nara');
-        if (!is_dir($this->cachePath)) {
-            mkdir($this->cachePath, 0755, true);
+        if (! is_dir($this->cachePath)) {
+            mkdir($this->cachePath, 0o755, true);
         }
     }
 
@@ -43,6 +43,7 @@ class NaraTtlDownloadService
         // Check if cache exists and is recent enough
         if (file_exists($cacheFile) && $this->isCacheValid($cacheFile)) {
             Log::info('Using cached NARA TTL file', ['file' => $cacheFile]);
+
             return file_get_contents($cacheFile);
         }
 
@@ -64,13 +65,13 @@ class NaraTtlDownloadService
                 $results[$name] = [
                     'success' => true,
                     'filename' => $filename,
-                    'size' => strlen($content)
+                    'size' => strlen($content),
                 ];
                 Log::info("Downloaded NARA {$name} file", ['filename' => $filename]);
             } catch (\Exception $e) {
                 $results[$name] = [
                     'success' => false,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ];
                 Log::error("Failed to download NARA {$name} file", ['error' => $e->getMessage()]);
             }
@@ -98,8 +99,8 @@ class NaraTtlDownloadService
                 'timeout' => 60,
                 'user_agent' => 'AgateSipLine/1.0 (Digital Preservation Tool)',
                 'follow_location' => true,
-                'max_redirects' => 5
-            ]
+                'max_redirects' => 5,
+            ],
         ]);
 
         $ttlContent = file_get_contents($url, false, $context);
@@ -109,7 +110,7 @@ class NaraTtlDownloadService
         }
 
         // Validate TTL content
-        if (!str_contains($ttlContent, '@prefix')) {
+        if (! str_contains($ttlContent, '@prefix')) {
             throw new \Exception('Downloaded content does not appear to be valid TTL');
         }
 
@@ -120,7 +121,7 @@ class NaraTtlDownloadService
 
         Log::info('Successfully downloaded and cached NARA TTL file', [
             'file' => $cacheFile,
-            'size' => strlen($ttlContent)
+            'size' => strlen($ttlContent),
         ]);
 
         return $ttlContent;
@@ -147,17 +148,19 @@ class NaraTtlDownloadService
 
         try {
             $ttlContent = $this->downloadFile($url, self::CACHE_FILENAME);
+
             return $ttlContent;
 
         } catch (\Exception $e) {
             Log::error('Failed to download NARA TTL file', [
                 'error' => $e->getMessage(),
-                'url' => $url
+                'url' => $url,
             ]);
 
             // Try to use existing cache even if old
             if (file_exists($cacheFile)) {
                 Log::warning('Using old cached TTL file due to download failure');
+
                 return file_get_contents($cacheFile);
             }
 
@@ -172,10 +175,10 @@ class NaraTtlDownloadService
     {
         $cacheFile = $this->cachePath . '/' . self::CACHE_FILENAME;
 
-        if (!file_exists($cacheFile)) {
+        if (! file_exists($cacheFile)) {
             return [
                 'exists' => false,
-                'path' => $cacheFile
+                'path' => $cacheFile,
             ];
         }
 
@@ -189,7 +192,7 @@ class NaraTtlDownloadService
             'modified' => Carbon::createFromTimestamp($fileTime)->toISOString(),
             'valid' => $isValid,
             'expires' => Carbon::createFromTimestamp($fileTime)->addDays(self::CACHE_DAYS)->toISOString(),
-            'age_days' => Carbon::now()->diffInDays(Carbon::createFromTimestamp($fileTime))
+            'age_days' => Carbon::now()->diffInDays(Carbon::createFromTimestamp($fileTime)),
         ];
     }
 

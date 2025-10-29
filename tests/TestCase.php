@@ -2,8 +2,8 @@
 
 namespace KraenzleRitter\NaraRiskAssessment\Tests;
 
-use Orchestra\Testbench\TestCase as Orchestra;
 use KraenzleRitter\NaraRiskAssessment\NaraServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
@@ -23,5 +23,16 @@ abstract class TestCase extends Orchestra
     {
         // Setup the application environment for testing
         $app['config']->set('database.default', 'testing');
+
+        // Register services for dependency injection
+        $app->bind(
+            \KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService::class,
+            fn () => new \KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService()
+        );
+
+        $app->bind(
+            \KraenzleRitter\NaraRiskAssessment\Services\NaraTtlParserService::class,
+            fn () => new \KraenzleRitter\NaraRiskAssessment\Services\NaraTtlParserService()
+        );
     }
 }

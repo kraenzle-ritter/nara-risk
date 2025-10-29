@@ -1,0 +1,26 @@
+# Include Larastan extension for Laravel support
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+        - tests
+    
+    # Exclude specific directories
+    excludePaths:
+        - tests/TestCase.php
+        - workbench/*
+        - vendor/*
+    
+    # Ignore some Laravel/Package specific issues
+    ignoreErrors:
+        - '#Call to an undefined method Illuminate\\Contracts\\Foundation\\Application::#'
+        - '#Cannot call method.*on mixed#'
+        - '#Parameter .* of method .* has no value type specified in iterable type#'
+        - identifier: missingType.iterableValue
+        - identifier: missingType.generics
+    
+    # Report unused suppression comments
+    reportUnmatchedIgnoredErrors: false

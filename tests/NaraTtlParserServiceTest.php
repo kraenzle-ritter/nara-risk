@@ -2,8 +2,8 @@
 
 namespace KraenzleRitter\NaraRiskAssessment\Tests;
 
-use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlParserService;
 use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlDownloadService;
+use KraenzleRitter\NaraRiskAssessment\Services\NaraTtlParserService;
 
 class NaraTtlParserServiceTest extends TestCase
 {
@@ -14,7 +14,7 @@ class NaraTtlParserServiceTest extends TestCase
     {
         parent::setUp();
         $this->parser = new NaraTtlParserService();
-        
+
         // Get real TTL content for testing
         $downloadService = new NaraTtlDownloadService();
         $this->sampleTtlContent = $downloadService->getTtlContent();
@@ -23,7 +23,7 @@ class NaraTtlParserServiceTest extends TestCase
     public function test_parse_ttl_returns_array()
     {
         $result = $this->parser->parseTtl($this->sampleTtlContent);
-        
+
         $this->assertIsArray($result);
         $this->assertNotEmpty($result);
     }
@@ -31,7 +31,7 @@ class NaraTtlParserServiceTest extends TestCase
     public function test_parse_ttl_extracts_pronom_mappings()
     {
         $mappings = $this->parser->parseTtl($this->sampleTtlContent);
-        
+
         // Check for known PRONOM IDs
         $this->assertArrayHasKey('fmt/412', $mappings, 'PDF 1.7 should be in mappings');
         $this->assertArrayHasKey('fmt/95', $mappings, 'PDF 1.4 should be in mappings');
@@ -40,11 +40,11 @@ class NaraTtlParserServiceTest extends TestCase
     public function test_parsed_mapping_has_required_fields()
     {
         $mappings = $this->parser->parseTtl($this->sampleTtlContent);
-        
+
         // Get a known format (PDF 1.7)
         $this->assertArrayHasKey('fmt/412', $mappings);
         $pdf17 = $mappings['fmt/412'];
-        
+
         // Check required fields exist
         $this->assertArrayHasKey('format_name', $pdf17);
         $this->assertArrayHasKey('nara_category', $pdf17);
@@ -56,7 +56,7 @@ class NaraTtlParserServiceTest extends TestCase
     {
         $mappings = $this->parser->parseTtl($this->sampleTtlContent);
         $pdf17 = $mappings['fmt/412'];
-        
+
         $this->assertArrayHasKey('value', $pdf17['nara_category']);
         $this->assertArrayHasKey('label', $pdf17['nara_category']);
         $this->assertNotEmpty($pdf17['nara_category']['value']);
@@ -67,7 +67,7 @@ class NaraTtlParserServiceTest extends TestCase
     {
         $mappings = $this->parser->parseTtl($this->sampleTtlContent);
         $pdf17 = $mappings['fmt/412'];
-        
+
         $this->assertArrayHasKey('value', $pdf17['nara_risk_level']);
         $this->assertArrayHasKey('label', $pdf17['nara_risk_level']);
         $this->assertNotEmpty($pdf17['nara_risk_level']['value']);
@@ -77,7 +77,7 @@ class NaraTtlParserServiceTest extends TestCase
     {
         $mappings = $this->parser->parseTtl($this->sampleTtlContent);
         $pdf17 = $mappings['fmt/412'];
-        
+
         $this->assertArrayHasKey('value', $pdf17['nara_preservation_action']);
         $this->assertArrayHasKey('label', $pdf17['nara_preservation_action']);
         $this->assertNotEmpty($pdf17['nara_preservation_action']['value']);
@@ -87,12 +87,12 @@ class NaraTtlParserServiceTest extends TestCase
     {
         $mappings = $this->parser->parseTtl($this->sampleTtlContent);
         $pdf17 = $mappings['fmt/412'];
-        
+
         // Labels should NOT contain URI patterns
         $categoryLabel = $pdf17['nara_category']['label'];
         $this->assertStringNotContainsString('http://', $categoryLabel);
         $this->assertStringNotContainsString('naraid:', $categoryLabel);
-        
+
         // Labels should be actual text
         $this->assertNotEmpty($categoryLabel);
         $this->assertIsString($categoryLabel);
@@ -101,7 +101,7 @@ class NaraTtlParserServiceTest extends TestCase
     public function test_multiple_pdf_versions_are_parsed()
     {
         $mappings = $this->parser->parseTtl($this->sampleTtlContent);
-        
+
         // PDF has many versions in NARA
         $this->assertArrayHasKey('fmt/95', $mappings);  // PDF 1.4
         $this->assertArrayHasKey('fmt/354', $mappings); // PDF 1.6
@@ -111,15 +111,15 @@ class NaraTtlParserServiceTest extends TestCase
     public function test_different_format_categories_are_parsed()
     {
         $mappings = $this->parser->parseTtl($this->sampleTtlContent);
-        
+
         $categories = [];
         foreach ($mappings as $pronomId => $mapping) {
             $category = $mapping['nara_category']['value'] ?? null;
-            if ($category && !in_array($category, $categories)) {
+            if ($category && ! in_array($category, $categories)) {
                 $categories[] = $category;
             }
         }
-        
+
         // Should have multiple categories
         $this->assertGreaterThan(5, count($categories));
         $this->assertContains('Textual', $categories);
@@ -129,7 +129,7 @@ class NaraTtlParserServiceTest extends TestCase
     {
         $mappings = $this->parser->parseTtl($this->sampleTtlContent);
         $pdf17 = $mappings['fmt/412'];
-        
+
         $this->assertArrayHasKey('nara_id', $pdf17['nara_category']);
         $this->assertArrayHasKey('nara_id', $pdf17['nara_risk_level']);
         $this->assertArrayHasKey('nara_id', $pdf17['nara_preservation_action']);
@@ -139,7 +139,7 @@ class NaraTtlParserServiceTest extends TestCase
     {
         $invalidTtl = "This is not valid TTL content";
         $result = $this->parser->parseTtl($invalidTtl);
-        
+
         // Should return empty array or handle error gracefully
         $this->assertIsArray($result);
     }
@@ -147,7 +147,7 @@ class NaraTtlParserServiceTest extends TestCase
     public function test_parser_extracts_hundreds_of_formats()
     {
         $mappings = $this->parser->parseTtl($this->sampleTtlContent);
-        
+
         // NARA registry should have many formats
         $this->assertGreaterThan(100, count($mappings), 'NARA should have 100+ formats');
     }
@@ -156,7 +156,7 @@ class NaraTtlParserServiceTest extends TestCase
     {
         $mappings = $this->parser->parseTtl($this->sampleTtlContent);
         $pdf17 = $mappings['fmt/412'];
-        
+
         $formatName = $pdf17['format_name'];
         $this->assertIsString($formatName);
         $this->assertNotEmpty($formatName);

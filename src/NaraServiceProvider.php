@@ -14,12 +14,13 @@ class NaraServiceProvider extends ServiceProvider
     {
         // Merge package configuration
         $this->mergeConfigFrom(
-            __DIR__.'/../config/nara.php', 'nara'
+            __DIR__.'/../config/nara.php',
+            'nara'
         );
 
         // Register singleton service
         $this->app->singleton('nara', function ($app) {
-            return new NaraAssessmentService();
+            return $app->make(NaraAssessmentService::class);
         });
     }
 

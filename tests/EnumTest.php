@@ -3,8 +3,8 @@
 namespace KraenzleRitter\NaraRiskAssessment\Tests;
 
 use KraenzleRitter\NaraRiskAssessment\Enums\Category;
-use KraenzleRitter\NaraRiskAssessment\Enums\RiskLevel;
 use KraenzleRitter\NaraRiskAssessment\Enums\PreservationAction;
+use KraenzleRitter\NaraRiskAssessment\Enums\RiskLevel;
 use PHPUnit\Framework\TestCase;
 
 class EnumTest extends TestCase
@@ -36,15 +36,15 @@ class EnumTest extends TestCase
     {
         $cases = Category::cases();
         $this->assertCount(16, $cases);
-        
+
         $expectedCategories = [
-            'AUDIO', 'CALENDARS', 'CINEMA', 'CODE', 'DATABASES', 
-            'DESIGN_VECTOR', 'EMAIL', 'GEOSPATIAL', 'NAV_CHARTS', 
-            'PRESENTATION', 'SPREADSHEETS', 'STILL_IMAGE', 
-            'STRUCTURED_DATA', 'TEXTUAL', 'VIDEO', 'WEB'
+            'AUDIO', 'CALENDARS', 'CINEMA', 'CODE', 'DATABASES',
+            'DESIGN_VECTOR', 'EMAIL', 'GEOSPATIAL', 'NAV_CHARTS',
+            'PRESENTATION', 'SPREADSHEETS', 'STILL_IMAGE',
+            'STRUCTURED_DATA', 'TEXTUAL', 'VIDEO', 'WEB',
         ];
-        
-        $actualCategories = array_map(fn($case) => $case->name, $cases);
+
+        $actualCategories = array_map(fn ($case) => $case->name, $cases);
         $this->assertEquals($expectedCategories, $actualCategories);
     }
 
@@ -55,7 +55,7 @@ class EnumTest extends TestCase
         $this->assertIsArray($audioPatterns);
         $this->assertNotEmpty($audioPatterns);
         $this->assertContains('fmt/1', $audioPatterns); // WAV
-        
+
         $textualPatterns = Category::TEXTUAL->getPronomPatterns();
         $this->assertIsArray($textualPatterns);
         $this->assertContains('fmt/412', $textualPatterns); // PDF 1.7
