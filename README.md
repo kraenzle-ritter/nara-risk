@@ -80,9 +80,7 @@ The package includes 44 comprehensive tests covering all functionality.
 ## Requirements
 
 - PHP 8.2+
-- Laravel 11.0+
-
-> **Note**: Laravel 12.0+ support is planned and should work, but is not yet tested in CI due to development tool compatibility.
+- Laravel 11.44+ | 12.4+
 
 ## Data Sources
 

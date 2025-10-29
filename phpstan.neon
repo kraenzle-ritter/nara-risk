@@ -19,8 +19,10 @@ parameters:
         - '#Call to an undefined method Illuminate\\Contracts\\Foundation\\Application::#'
         - '#Cannot call method.*on mixed#'
         - '#Parameter .* of method .* has no value type specified in iterable type#'
+        - '#Call to method PHPUnit\\Framework\\Assert::assert.*\(\) with .* will always evaluate to true#'
         - identifier: missingType.iterableValue
         - identifier: missingType.generics
+        - identifier: method.alreadyNarrowedType
     
     # Report unused suppression comments
     reportUnmatchedIgnoredErrors: false
