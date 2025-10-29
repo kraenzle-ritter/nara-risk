@@ -13,7 +13,7 @@ class NaraAssessmentServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create services manually for testing to avoid DI issues in CI
         $downloadService = new NaraTtlDownloadService();
         $parserService = new NaraTtlParserService();

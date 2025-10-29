@@ -23,26 +23,26 @@ abstract class TestCase extends Orchestra
     {
         // Setup the application environment for testing
         $app['config']->set('database.default', 'testing');
-        
+
         // Disable package discovery in testing to avoid conflicts
         $app['config']->set('app.providers', []);
     }
-    
+
     protected function defineEnvironment($app)
     {
         // Ensure clean environment for CI
         $app['config']->set('cache.default', 'array');
         $app['config']->set('session.driver', 'array');
-        
+
         // Create storage directories if they don't exist
         $storagePath = $app->basePath('storage/app');
-        if (!file_exists($storagePath)) {
-            mkdir($storagePath, 0755, true);
+        if (! file_exists($storagePath)) {
+            mkdir($storagePath, 0o755, true);
         }
-        
+
         $naraPath = $storagePath . '/nara';
-        if (!file_exists($naraPath)) {
-            mkdir($naraPath, 0755, true);
+        if (! file_exists($naraPath)) {
+            mkdir($naraPath, 0o755, true);
         }
     }
 }
