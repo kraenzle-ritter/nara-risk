@@ -2,7 +2,6 @@
 
 [![Tests](https://github.com/kraenzle-ritter/nara-risk/workflows/Tests/badge.svg)](https://github.com/kraenzle-ritter/nara-risk/actions)
 [![Code Style](https://github.com/kraenzle-ritter/nara-risk/workflows/Code%20Style/badge.svg)](https://github.com/kraenzle-ritter/nara-risk/actions)
-[![codecov](https://codecov.io/gh/kraenzle-ritter/nara-risk/branch/main/graph/badge.svg)](https://codecov.io/gh/kraenzle-ritter/nara-risk)
 [![PHPStan Level 5](https://img.shields.io/badge/PHPStan-Level%205-brightgreen.svg)](https://phpstan.org/)
 [![Latest Stable Version](https://poser.pugx.org/kraenzle-ritter/nara-risk/v/stable)](https://packagist.org/packages/kraenzle-ritter/nara-risk)
 [![Total Downloads](https://poser.pugx.org/kraenzle-ritter/nara-risk/downloads)](https://packagist.org/packages/kraenzle-ritter/nara-risk)
