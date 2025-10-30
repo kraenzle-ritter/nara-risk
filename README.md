@@ -86,12 +86,12 @@ The package includes 44 comprehensive tests covering all functionality.
 
 This package uses official data from:
 
-- NARA Digital Preservation Framework
-- PRONOM Technical Registry
-- Archives.gov TTL/RDF files
+- [NARA Digital Preservation Framework](https://www.archives.gov/preservation/digital-preservation/risk)
+- [PRONOM Technical Registry](https://www.nationalarchives.gov.uk/PRONOM/)
+- [Archives.gov TTL/RDF files](https://www.archives.gov/preservation/digital-preservation/linked-data)
 
 Data is cached locally and refreshed automatically every 28 days.
 
 ## License
 
-MIT License. See LICENSE file for details.
+This project is licensed under the [MIT License](LICENSE).
