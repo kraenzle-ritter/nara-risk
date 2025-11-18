@@ -42,8 +42,6 @@ class NaraTtlDownloadService
 
         // Check if cache exists and is recent enough
         if (file_exists($cacheFile) && $this->isCacheValid($cacheFile)) {
-            Log::info('Using cached NARA TTL file', ['file' => $cacheFile]);
-
             return file_get_contents($cacheFile);
         }
 
@@ -67,7 +65,6 @@ class NaraTtlDownloadService
                     'filename' => $filename,
                     'size' => strlen($content),
                 ];
-                Log::info("Downloaded NARA {$name} file", ['filename' => $filename]);
             } catch (\Exception $e) {
                 $results[$name] = [
                     'success' => false,

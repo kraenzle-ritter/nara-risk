@@ -19,8 +19,6 @@ class NaraTtlParserService
      */
     public function parseTtl(string $ttlContent): array
     {
-        Log::info('Starting NARA TTL parsing with hardf library');
-
         $this->pronomMappings = [];
         $this->naraFormats = [];
 
@@ -28,12 +26,6 @@ class NaraTtlParserService
             // Use hardf library to parse TTL
             $parser = new TriGParser();
             $triples = $parser->parse($ttlContent);
-
-            Log::debug('Hardf parsing result', [
-                'triples_count' => count($triples),
-                'first_triple_type' => gettype($triples[0] ?? null),
-                'first_triple_structure' => is_array($triples[0] ?? null) ? array_keys($triples[0]) : 'not array',
-            ]);
 
             // Group triples by subject
             $resources = [];
@@ -76,11 +68,6 @@ class NaraTtlParserService
             return [];
         }
 
-        Log::info('NARA TTL parsing completed', [
-            'pronom_mappings' => count($this->pronomMappings),
-            'nara_formats' => count($this->naraFormats),
-        ]);
-
         return $this->pronomMappings;
     }
 
@@ -109,15 +96,6 @@ class NaraTtlParserService
 
         // Look for PRONOM ID via wikidata:p2748
         $pronomId = $this->extractPronomId($properties);
-
-        Log::debug('Parsed resource with hardf', [
-            'subject' => $subject,
-            'properties_count' => count($properties),
-            'has_pronom' => ! empty($pronomId),
-            'pronom_id' => $pronomId,
-            'has_wikidata_p2748' => isset($properties['http://www.wikidata.org/entity/p2748']),
-            'property_keys' => array_slice(array_keys($properties), 0, 10), // First 10 property keys
-        ]);
 
         if ($pronomId) {
             $this->processPronomMapping($subject, $pronomId, $properties);
@@ -191,14 +169,6 @@ class NaraTtlParserService
         // Store by PRONOM ID
         $this->pronomMappings[$pronomId] = $mapping;
         $this->naraFormats[$subject] = $mapping;
-
-        Log::debug('Processed PRONOM mapping', [
-            'pronom_id' => $pronomId,
-            'format' => $formatName,
-            'category' => $category,
-            'risk' => $riskLevel,
-            'action' => $preservationAction,
-        ]);
     }
 
     /**

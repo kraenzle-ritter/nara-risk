@@ -39,10 +39,6 @@ class NaraAssessmentService
             // Parse TTL and extract PRONOM mappings
             $this->ttlMappings = $this->parserService->parseTtl($ttlContent);
 
-            Log::info('NARA Assessment Service initialized', [
-                'ttl_mappings' => count($this->ttlMappings),
-            ]);
-
             $this->initialized = true;
 
         } catch (\Exception $e) {
