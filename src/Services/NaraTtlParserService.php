@@ -12,15 +12,13 @@ use pietercolpaert\hardf\TriGParser;
 class NaraTtlParserService
 {
     private array $pronomMappings = [];
-    private array $naraFormats = [];
 
     /**
      * Parse TTL content and extract PRONOM mappings
      */
     public function parseTtl(string $ttlContent): array
     {
-        $this->pronomMappings = [];
-        $this->naraFormats = [];
+    $this->pronomMappings = [];
 
         try {
             // Use hardf library to parse TTL
@@ -167,8 +165,7 @@ class NaraTtlParserService
         ];
 
         // Store by PRONOM ID
-        $this->pronomMappings[$pronomId] = $mapping;
-        $this->naraFormats[$subject] = $mapping;
+    $this->pronomMappings[$pronomId] = $mapping;
     }
 
     /**
