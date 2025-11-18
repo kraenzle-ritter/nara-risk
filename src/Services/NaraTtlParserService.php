@@ -18,7 +18,7 @@ class NaraTtlParserService
      */
     public function parseTtl(string $ttlContent): array
     {
-    $this->pronomMappings = [];
+        $this->pronomMappings = [];
 
         try {
             // Use hardf library to parse TTL
@@ -165,7 +165,7 @@ class NaraTtlParserService
         ];
 
         // Store by PRONOM ID
-    $this->pronomMappings[$pronomId] = $mapping;
+        $this->pronomMappings[$pronomId] = $mapping;
     }
 
     /**
