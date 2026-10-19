@@ -4,14 +4,18 @@ namespace KraenzleRitter\NaraRisk\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * NARA TTL File Download and Caching Service
+ *
+ * Settings come from config/nara.php. On a server without internet access a
+ * download waits for the full timeout and fails; a failure is therefore
+ * remembered and not retried for `retry_after_minutes`, and `download` false
+ * turns downloading off altogether.
  */
 class NaraTtlDownloadService
 {
-    private const TTL_FILES = [
+    private const SCHEMA_URLS = [
         'fileformats' => 'https://www.archives.gov/files/lod/dpframework/fileformats.ttl',
         'presaction' => 'https://www.archives.gov/files/lod/dpframework/presaction.ttl',
         'category' => 'https://www.archives.gov/files/lod/dpframework/category.ttl',
@@ -20,14 +24,14 @@ class NaraTtlDownloadService
     ];
 
     private const CACHE_FILENAME = 'nara_fileformats.ttl';
+    private const FAILURE_MARKER = 'nara_fileformats.ttl.failed';
     private const CACHE_DAYS = 28; // 4 weeks
 
     private string $cachePath;
 
     public function __construct()
     {
-        // Store in storage/app/nara/ directory
-        $this->cachePath = storage_path('app/nara');
+        $this->cachePath = rtrim((string) config('nara.cache_directory', storage_path('app/nara')), '/');
         if (! is_dir($this->cachePath)) {
             mkdir($this->cachePath, 0o755, true);
         }
@@ -38,15 +42,37 @@ class NaraTtlDownloadService
      */
     public function getTtlContent(): string
     {
-        $cacheFile = $this->cachePath . '/' . self::CACHE_FILENAME;
+        return file_get_contents($this->getTtlPath());
+    }
 
-        // Check if cache exists and is recent enough
+    /**
+     * Path of the fileformats TTL file: downloaded if missing or older than
+     * the cache duration, else the cached file.
+     *
+     * When downloading is off or failed recently, an outdated file is used
+     * without trying; with no file at all this throws at once.
+     */
+    public function getTtlPath(): string
+    {
+        $cacheFile = $this->cacheFile();
+
         if (file_exists($cacheFile) && $this->isCacheValid($cacheFile)) {
-            return file_get_contents($cacheFile);
+            return $cacheFile;
         }
 
-        // Download fresh TTL data
-        return $this->downloadAndCache();
+        if (! $this->downloadEnabled() || $this->failedRecently()) {
+            if (file_exists($cacheFile)) {
+                return $cacheFile;
+            }
+
+            throw new \Exception($this->downloadEnabled()
+                ? 'No TTL data available: the last download failed less than ' . $this->retryAfterMinutes() . ' minutes ago'
+                : 'No TTL data available: downloading is off (nara.download) and ' . $cacheFile . ' is missing');
+        }
+
+        $this->downloadAndCache();
+
+        return $cacheFile;
     }
 
     /**
@@ -56,7 +82,7 @@ class NaraTtlDownloadService
     {
         $results = [];
 
-        foreach (self::TTL_FILES as $name => $url) {
+        foreach ($this->schemaUrls() as $name => $url) {
             try {
                 $filename = "nara_{$name}.ttl";
                 $content = $this->downloadFile($url, $filename);
@@ -80,12 +106,12 @@ class NaraTtlDownloadService
     /**
      * Download a single TTL file and save to cache
      */
-    private function downloadFile(string $url, string $filename): string
+    private function downloadFile(string $url, string $filename, bool $force = false): string
     {
         $cacheFile = $this->cachePath . '/' . $filename;
 
         // Check if file exists and is recent
-        if (file_exists($cacheFile) && $this->isCacheValid($cacheFile)) {
+        if (! $force && file_exists($cacheFile) && $this->isCacheValid($cacheFile)) {
             return file_get_contents($cacheFile);
         }
 
@@ -93,26 +119,29 @@ class NaraTtlDownloadService
 
         $context = stream_context_create([
             'http' => [
-                'timeout' => 60,
+                'timeout' => (float) config('nara.timeout', 60),
                 'user_agent' => 'AgateSipLine/1.0 (Digital Preservation Tool)',
                 'follow_location' => true,
                 'max_redirects' => 5,
             ],
         ]);
 
-        $ttlContent = file_get_contents($url, false, $context);
+        $ttlContent = @file_get_contents($url, false, $context);
 
         if ($ttlContent === false) {
             throw new \Exception('Failed to download TTL file from ' . $url);
         }
 
-        // Validate TTL content
-        if (! str_contains($ttlContent, '@prefix')) {
-            throw new \Exception('Downloaded content does not appear to be valid TTL');
+        // A moved file may come back as an HTML page («Page Not Found»)
+        if (preg_match('/^\s*</', $ttlContent) === 1 || ! str_contains($ttlContent, '@prefix')) {
+            throw new \Exception('Downloaded content from ' . $url . ' does not appear to be valid TTL');
         }
 
-        // Save to cache
-        if (file_put_contents($cacheFile, $ttlContent) === false) {
+        // Write next to the file and rename, so a parallel reader never sees half of it
+        $tmpFile = $cacheFile . '.' . getmypid() . '.tmp';
+        if (file_put_contents($tmpFile, $ttlContent) === false || ! rename($tmpFile, $cacheFile)) {
+            @unlink($tmpFile);
+
             throw new \Exception('Failed to write TTL cache file');
         }
 
@@ -130,7 +159,7 @@ class NaraTtlDownloadService
     private function isCacheValid(string $cacheFile): bool
     {
         $fileTime = filemtime($cacheFile);
-        $expiryTime = Carbon::now()->subDays(self::CACHE_DAYS)->timestamp;
+        $expiryTime = Carbon::now()->subDays($this->cacheDays())->timestamp;
 
         return $fileTime > $expiryTime;
     }
@@ -138,20 +167,24 @@ class NaraTtlDownloadService
     /**
      * Download TTL file and save to cache
      */
-    private function downloadAndCache(): string
+    private function downloadAndCache(bool $force = false): string
     {
-        $cacheFile = $this->cachePath . '/' . self::CACHE_FILENAME;
-        $url = self::TTL_FILES['fileformats'];
+        $cacheFile = $this->cacheFile();
+        $url = $this->schemaUrls()['fileformats'];
 
         try {
-            $ttlContent = $this->downloadFile($url, self::CACHE_FILENAME);
+            $ttlContent = $this->downloadFile($url, self::CACHE_FILENAME, $force);
+            @unlink($this->failureMarker());
 
             return $ttlContent;
 
         } catch (\Exception $e) {
+            @touch($this->failureMarker());
+
             Log::error('Failed to download NARA TTL file', [
                 'error' => $e->getMessage(),
                 'url' => $url,
+                'retry_after_minutes' => $this->retryAfterMinutes(),
             ]);
 
             // Try to use existing cache even if old
@@ -170,12 +203,17 @@ class NaraTtlDownloadService
      */
     public function getCacheInfo(): array
     {
-        $cacheFile = $this->cachePath . '/' . self::CACHE_FILENAME;
+        $cacheFile = $this->cacheFile();
+        $lastFailure = file_exists($this->failureMarker())
+            ? Carbon::createFromTimestamp(filemtime($this->failureMarker()))->toISOString()
+            : null;
 
         if (! file_exists($cacheFile)) {
             return [
                 'exists' => false,
                 'path' => $cacheFile,
+                'download' => $this->downloadEnabled(),
+                'last_failure' => $lastFailure,
             ];
         }
 
@@ -188,23 +226,62 @@ class NaraTtlDownloadService
             'size' => filesize($cacheFile),
             'modified' => Carbon::createFromTimestamp($fileTime)->toISOString(),
             'valid' => $isValid,
-            'expires' => Carbon::createFromTimestamp($fileTime)->addDays(self::CACHE_DAYS)->toISOString(),
+            'expires' => Carbon::createFromTimestamp($fileTime)->addDays($this->cacheDays())->toISOString(),
             'age_days' => Carbon::now()->diffInDays(Carbon::createFromTimestamp($fileTime)),
+            'download' => $this->downloadEnabled(),
+            'last_failure' => $lastFailure,
         ];
     }
 
     /**
      * Force refresh of TTL cache
+     *
+     * The old file is kept until the new one has arrived: a failed refresh
+     * must not leave the assessment without data.
      */
     public function refreshCache(): string
     {
-        $cacheFile = $this->cachePath . '/' . self::CACHE_FILENAME;
+        return $this->downloadAndCache(force: true);
+    }
 
-        // Remove old cache
-        if (file_exists($cacheFile)) {
-            unlink($cacheFile);
-        }
+    private function cacheFile(): string
+    {
+        return $this->cachePath . '/' . self::CACHE_FILENAME;
+    }
 
-        return $this->downloadAndCache();
+    private function failureMarker(): string
+    {
+        return $this->cachePath . '/' . self::FAILURE_MARKER;
+    }
+
+    private function failedRecently(): bool
+    {
+        $marker = $this->failureMarker();
+
+        return file_exists($marker)
+            && filemtime($marker) > Carbon::now()->subMinutes($this->retryAfterMinutes())->timestamp;
+    }
+
+    private function downloadEnabled(): bool
+    {
+        return (bool) config('nara.download', true);
+    }
+
+    private function retryAfterMinutes(): int
+    {
+        return (int) config('nara.retry_after_minutes', 360);
+    }
+
+    private function cacheDays(): int
+    {
+        return (int) config('nara.cache_days', self::CACHE_DAYS);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function schemaUrls(): array
+    {
+        return (array) config('nara.schema_urls') ?: self::SCHEMA_URLS;
     }
 }

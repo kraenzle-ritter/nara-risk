@@ -33,11 +33,8 @@ class NaraAssessmentService
         }
 
         try {
-            // Get TTL content (cached or downloaded)
-            $ttlContent = $this->downloadService->getTtlContent();
-
-            // Parse TTL and extract PRONOM mappings
-            $this->ttlMappings = $this->parserService->parseTtl($ttlContent);
+            // TTL file (cached or downloaded), parsed once per file version
+            $this->ttlMappings = $this->parserService->parseFile($this->downloadService->getTtlPath());
 
             $this->initialized = true;
 

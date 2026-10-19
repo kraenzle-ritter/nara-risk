@@ -34,10 +34,10 @@ The package auto-registers via Laravel's package discovery.
 use KraenzleRitter\NaraRisk\Services\NaraAssessmentService;
 
 $service = app(NaraAssessmentService::class);
-$result = $service->assessFile('fmt/412'); // PDF 1.7
+$result = $service->assessFile('fmt/276'); // PDF 1.7
 
 echo $result['risk_level'];           // "Low"
-echo $result['category'];             // "Textual"
+echo $result['category'];             // "Presentation and Publishing"
 echo $result['recommended_action'];   // "Retain"
 ```
 
@@ -67,6 +67,24 @@ $stats = $service->getFormatStatistics();
 $cacheInfo = $service->getCacheInfo();
 ```
 
+## Configuration
+
+Publish the configuration with `php artisan vendor:publish --tag=nara-config`, or set the
+environment variable. The defaults:
+
+| Key | Default | |
+|---|---|---|
+| `cache_directory` | `storage/app/nara` | TTL files and the parsed format table |
+| `cache_days` | `28` | age after which `fileformats.ttl` is downloaded again |
+| `download` | `true` (`NARA_DOWNLOAD`) | `false` on servers without internet access: the file in the cache directory is used however old, and nothing waits for a download |
+| `timeout` | `60` | seconds per download |
+| `retry_after_minutes` | `360` | a failed download is not retried before; meanwhile the old file is used, or the assessment fails at once if there is none |
+| `schema_urls` | archives.gov | `fileformats` is read by the assessment; `nara:download-schema` fetches all |
+
+The parsed table is stored next to the TTL file (`nara_fileformats.ttl.parsed`) and reused
+while the file is unchanged, so a queue job assessing a single file does not parse 1 MB of
+Turtle each time.
+
 ## Testing
 
 Run the test suite:
@@ -75,12 +93,12 @@ Run the test suite:
 composer test
 ```
 
-The package includes 44 comprehensive tests covering all functionality.
+Some tests download from archives.gov; `NaraTtlCacheTest` runs without network.
 
 ## Requirements
 
 - PHP 8.2+
-- Laravel 11.44+ | 12.4+
+- Laravel 11.44+ | 12.4+ | 13
 
 ## Data Sources
 

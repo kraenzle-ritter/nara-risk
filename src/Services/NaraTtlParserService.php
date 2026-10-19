@@ -11,7 +11,47 @@ use pietercolpaert\hardf\TriGParser;
  */
 class NaraTtlParserService
 {
+    /**
+     * Bump when the shape of a mapping changes, so older parsed caches are
+     * not used.
+     */
+    private const PARSED_FORMAT = 1;
+
     private array $pronomMappings = [];
+
+    /**
+     * Parse a TTL file, using the parsed table stored next to it while the
+     * file is unchanged.
+     *
+     * Parsing the 1.1 MB fileformats.ttl takes seconds; a queue job that
+     * assesses one medium would otherwise spend them on every medium.
+     */
+    public function parseFile(string $ttlFile): array
+    {
+        $parsedFile = $ttlFile . '.parsed';
+        $source = ['md5' => md5_file($ttlFile), 'format' => self::PARSED_FORMAT];
+
+        if (is_file($parsedFile)) {
+            $parsed = @unserialize((string) file_get_contents($parsedFile), ['allowed_classes' => false]);
+
+            if (is_array($parsed) && ($parsed['source'] ?? null) === $source && ! empty($parsed['mappings'])) {
+                return $this->pronomMappings = $parsed['mappings'];
+            }
+        }
+
+        $mappings = $this->parseTtl((string) file_get_contents($ttlFile));
+
+        // An empty table is a parse failure; storing it would hide the next attempt
+        if ($mappings !== []) {
+            $tmpFile = $parsedFile . '.' . getmypid() . '.tmp';
+            if (@file_put_contents($tmpFile, serialize(['source' => $source, 'mappings' => $mappings])) === false || ! @rename($tmpFile, $parsedFile)) {
+                @unlink($tmpFile);
+                Log::warning('Could not store parsed NARA TTL table', ['file' => $parsedFile]);
+            }
+        }
+
+        return $mappings;
+    }
 
     /**
      * Parse TTL content and extract PRONOM mappings

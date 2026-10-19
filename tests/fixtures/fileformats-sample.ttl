@@ -1,0 +1,29 @@
+# baseURI: https://www.archives.gov/files/lod/dpframework/fileformats
+
+@prefix : <https://www.archives.gov/files/lod/dpframework/schema> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix nara: <https://www.archives.gov/data/lod/dpframework/def/> .
+@prefix naraid: <https://www.archives.gov/data/lod/dpframework/id/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix wikidata: <http://www.wikidata.org/entity/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+naraid:NF00100
+  a nara:FileFormat ;
+  dcterms:description "3DS Max files (.max) are proprietary 3D modeling files that contain all components and references needed to render a 3D scene. First released in 1988, Autodesk 3DS Max supports polygon, NURBS, and surface tool modeling. These files can be opened in FME and Autodesk 3DS Max, which supports backwards compatibility to open any .max file created in earlier versions of the software. Due to the proprietary nature of the format and the expense of Autodesk 3DS Max software, transformation to the open-source file format USD is recommended." ;
+  dcterms:identifier "NF00100" ;
+  rdfs:label "NF00100" ;
+  wikidata:p1195 "max" ;
+  wikidata:p2748 "https://www.nationalarchives.gov.uk/PRONOM/fmt/978" ;
+  wikidata:p973 "https://en.wikipedia.org/wiki/Autodesk_3ds_Max" ;
+  wikidata:p973 "https://www.wikidata.org/wiki/Q28771225" ;
+  nara:category naraid:DesignVector ;
+  nara:formatName "3DS Max" ;
+  nara:preservationAction naraid:Transform ;
+  nara:preservationPlan "Transform to ESRI ArcGIS Shapefile" ;
+  nara:riskLevel naraid:Moderate ;
+  nara:tools """FME; Global Mapper; Autodesk 3ds Max 
+""" ;
+  <https://www.archives.gov/files/lod/dpframework/schemaArchiveTeamURL> "http://fileformats.archiveteam.org/wiki/MAX_(3ds_Max)" ;
+.
